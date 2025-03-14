@@ -1,12 +1,18 @@
-# React + Vite
+# React + Vite FRONTEND
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Vanilla PHP REST API - UCC project - Eseménykezelő rendszer** FRONTEND része
 
-Currently, two official plugins are available:
+Ez egy egyszerű REST API, amit Vanilla PHP és MySQL segítségével készítettem el. Egy eseménykezelő rendszer létrehozása volt a célom, amelyen keresztül a felhasználók eseményeket hozhatnak létre, listázhatják, szerkeszthetik és törölhetik azokat. 
+------
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ** Felhasznált technológiák**  
+    
+    -Backend: PHP (Vanilla, tehát nincs Laravel vagy más framework)  
 
-## Expanding the ESLint configuration
+    -Adatbázis: MySQL (MySQL. phpMyAdmin, XAMPP-on)  
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+    -Autentikáció: JWT (JSON Web Token)  
+
+    -Biztonság: HTTPS, SQL Injection védelem, Token alapú hitelesítés  
+
+--- 
