@@ -93,7 +93,7 @@ const styles = {
         boxSizing: 'border-box', // Fontos, hogy ne változzon a méret
     },
     loginButton: {
-        backgroundColor: '#007BFF',
+        backgroundColor: '#4646FF',
         color: 'white',
         border: 'none',
         padding: '10px',
