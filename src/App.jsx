@@ -9,7 +9,10 @@ const App = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={token ? <Events token={token} /> : <Login setToken={setToken} />} />
+                <Route 
+                    path="/" 
+                    element={token ? <Events token={token} setToken={setToken} /> : <Login setToken={setToken} />} 
+                />
             </Routes>
         </Router>
     );

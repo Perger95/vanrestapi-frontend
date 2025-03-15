@@ -24,6 +24,18 @@ export const createEvent = async (eventData, token) => {
     });
     return response.data;
 };
+
+// Esemény frissítése (PATCH)
+export const updateEvent = async (id, updateData, token) => {
+    const response = await axios.patch(`${API_BASE_URL}?events=${id}`, updateData, {
+        headers: { 
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        }
+    });
+    return response.data;
+};
+
  
 // Esemény törlése
 export const deleteEvent = async (id, token) => {

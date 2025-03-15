@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { getEvents, createEvent, deleteEvent } from '../api';
+import { getEvents, createEvent, deleteEvent, updateEvent } from '../api';
 
-const Events = ({ token }) => {
+const Events = ({ token, setToken }) => {
     const [events, setEvents] = useState([]);
     const [title, setTitle] = useState('');
     const [occurrence, setOccurrence] = useState('');
+    const [description, setDescription] = useState('');
+    const [editId, setEditId] = useState(null);
+    const [editDescription, setEditDescription] = useState('');
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -22,15 +25,37 @@ const Events = ({ token }) => {
     const handleCreateEvent = async (e) => {
         e.preventDefault();
         try {
-            const newEvent = { title, occurrence };
+            const newEvent = { title, occurrence, description };
             const createdEvent = await createEvent(newEvent, token);
-            setEvents([...events, createdEvent]); // Új esemény hozzáadása a listához
+    
+            // Ellenőrizzük, hogy a dátum valóban megfelelő formátumban van-e
+            let formattedOccurrence = null;
+            if (createdEvent.occurrence) {
+                const parsedDate = new Date(createdEvent.occurrence);
+                formattedOccurrence = isNaN(parsedDate.getTime()) 
+                    ? null  // Ha érvénytelen, akkor null-t adunk vissza
+                    : parsedDate.toISOString();  // ISO formátumba alakítjuk
+            }
+    
+            // Az új eseményt egy időzített állapotfrissítéssel adjuk hozzá
+            setTimeout(() => {
+                setEvents(prevEvents => [
+                    ...prevEvents, 
+                    { ...createdEvent, occurrence: formattedOccurrence }
+                ]);
+            }, 100); // Minimális késleltetés az érvényes adat betöltéséhez
+    
+            // Formok kiürítése
             setTitle('');
             setOccurrence('');
+            setDescription('');
         } catch (error) {
             console.error("Error creating event:", error);
         }
     };
+    
+    
+    
 
     const handleDeleteEvent = async (id) => {
         const confirmDelete = window.confirm("❌ Biztosan törölni szeretnéd ezt az eseményt?");
@@ -38,10 +63,30 @@ const Events = ({ token }) => {
 
         try {
             await deleteEvent(id, token);
-            setEvents(prevEvents => prevEvents.filter(event => event.id !== id)); // Törölt esemény eltávolítása a listából
+            setEvents(prevEvents => prevEvents.filter(event => event.id !== id));
         } catch (error) {
             console.error("Error deleting event:", error);
         }
+    };
+
+    const handleEditEvent = async (id) => {
+        try {
+            await updateEvent(id, { description: editDescription }, token);
+            setEvents(prevEvents => 
+                prevEvents.map(event => 
+                    event.id === id ? { ...event, description: editDescription } : event
+                )
+            );
+            setEditId(null);
+            setEditDescription('');
+        } catch (error) {
+            console.error("Error updating event:", error);
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setToken('');
     };
 
     return (
@@ -49,20 +94,57 @@ const Events = ({ token }) => {
             <h2 style={styles.heading}> My Events</h2>
             
             <ul style={styles.eventList}>
-                {events.map(event => (
-                    <li key={event.id} style={styles.eventItem}>
-                        <span style={styles.eventText}>
-                            <strong>{event.title}</strong> - {new Date(event.occurrence).toLocaleString()}
-                        </span>
-                        <button 
-                            onClick={() => handleDeleteEvent(event.id)} 
-                            style={styles.deleteButton}
-                        >
-                            ✗ Delete
-                        </button>
-                    </li>
-                ))}
+                {events.map(event => {
+                    let formattedDate = "Invalid Date";
+                    if (event.occurrence) {
+                        try {
+                            const parsedDate = new Date(event.occurrence);
+                            formattedDate = !isNaN(parsedDate) 
+                                ? parsedDate.toLocaleString() 
+                                : "Invalid Date";
+                        } catch (error) {
+                            console.error("❌ Date parsing error:", error);
+                        }
+                    }
+
+                    return (
+                        <li key={event.id || Math.random()} style={styles.eventItem}>
+                            <span style={styles.eventText}>
+                                <strong>{event.title}</strong> - {formattedDate}
+                                <br />
+                                <em>{event.description || "No description"}</em>
+                            </span>
+
+                            {editId === event.id ? (
+                                <>
+                                    <input 
+                                        type="text"
+                                        value={editDescription}
+                                        onChange={(e) => setEditDescription(e.target.value)}
+                                        maxLength="100"
+                                        style={styles.input}
+                                    />
+                                    <button onClick={() => handleEditEvent(event.id)} style={styles.saveButton}>
+                                        💾 Save
+                                    </button>
+                                </>
+                             ) : (
+                                <>
+                                    <button onClick={() => { setEditId(event.id); setEditDescription(event.description || '') }} style={styles.editButton}>
+                                        ✏ Edit
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDeleteEvent(event.id)} 
+                                        style={styles.deleteButton}>
+                                        ✗ Delete
+                                    </button>
+                                </>
+                            )}
+                        </li>
+                    );
+                })}
             </ul>
+
 
             <h3 style={styles.heading}> Create New Event ⚡</h3>
             <form onSubmit={handleCreateEvent} style={styles.form}>
@@ -81,77 +163,81 @@ const Events = ({ token }) => {
                     required 
                     style={styles.input}
                 />
+                <input 
+                    type="text"
+                    placeholder="Description (optional)"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    maxLength="100"
+                    style={styles.input}
+                />
                 <button type="submit" style={styles.createButton}>➕ Create Event</button>
             </form>
+
+            <button onClick={handleLogout} style={styles.logoutButton}>🚪 Logout</button>
         </div>
     );
 };
 
-// 🎨 Stílusok
+// Stílusok
 const styles = {
     container: {
-        maxWidth: '500px',
-        margin: 'auto',
+        maxWidth: '600px',
+        margin: 'auto',  // 🌟 Középre igazítás
         padding: '20px',
         backgroundColor: '#f9f9f9',
         borderRadius: '10px',
         boxShadow: '0px 4px 8px rgba(0,0,0,0.1)',
-        textAlign: 'center',
-    },
-    heading: {
-        color: '#333',
-        marginBottom: '15px',
-        fontFamily: "'Emblema One', cursive",
-    },
-    eventList: {
-        listStyleType: 'none',
-        padding: 0,
-    },
-    eventItem: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        padding: '10px',
-        borderRadius: '8px',
-        marginBottom: '10px',
-        boxShadow: '0px 2px 5px rgba(0,0,0,0.1)',
-    },
-    eventText: {
-        flex: 1,
-        textAlign: 'left',
-    },
-    deleteButton: {
-        backgroundColor: '#D2595C',  // lágypiros 
-        color: 'white',
-        border: 'none',
-        padding: '8px 12px',
-        borderRadius: '20px', // Lekerekített gomb
-        cursor: 'pointer',
-        fontWeight: 'bold',
-        fontSize: '14px',
-        transition: '0.3s',
-        boxShadow: '0px 2px 4px rgba(0,0,0,0.2)',
-    },
-    form: {
+        textAlign: 'center', // 🌟 Szöveg középre igazítása
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px',
-        marginTop: '20px',
+        alignItems: 'center', // 🌟 Belül minden középre
     },
-    input: {
-        padding: '10px',
+    logoutButton: {
+        backgroundColor: '#FF4500',
+        color: 'white',
+        border: 'none',
+        padding: '10px 20px', // 🛠️ Jobban láthatóvá teszi
         borderRadius: '5px',
-        border: '1px solid #ccc',
+        cursor: 'pointer',
+        marginTop: '20px',
+        display: 'block', // 🌟 Nem inline, hanem saját sorban van
+        margin: '20px auto', // 🌟 Középre igazítás
+        textAlign: 'center'
     },
-    createButton: {
+    saveButton: {
         backgroundColor: '#28a745',
         color: 'white',
         border: 'none',
-        padding: '10px',
+        padding: '5px 10px',
         borderRadius: '5px',
         cursor: 'pointer',
+        marginLeft: '5px'
     },
+    editButton: {
+        backgroundColor: '#007BFF',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        marginRight: '5px'
+    },
+    deleteButton: {
+        backgroundColor: '#D2595C',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        cursor: 'pointer'
+    },
+    descriptionInput: {
+        width: '80%', // 🌟 Nem foglalja el az egész sort
+        padding: '10px',
+        borderRadius: '5px',
+        border: '1px solid #ccc',
+        marginTop: '10px'
+    }
 };
 
 export default Events;
