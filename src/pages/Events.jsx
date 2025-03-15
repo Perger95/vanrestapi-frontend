@@ -188,7 +188,9 @@ const styles = {
         alignItems: "center", 
         backgroundRepeat: "repeat",
         paddingBottom: "50px",
-        paddingTop: "50px"
+        paddingTop: "50px",
+        maxHeight: "130vh", 
+        overflowY: "hidden", // Prevent unnecessary vertical scrolling
     },
     container: {
         backgroundColor: "rgba(255, 255, 255, 0.95)",
