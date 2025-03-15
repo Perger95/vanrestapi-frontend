@@ -43,10 +43,10 @@ function ResetPassword() {
       console.log("📬 Szerver válasz:", data);
 
       if (!response.ok) {
-        throw new Error(data.error || "Hiba történt!");
+        throw new Error(data.error || "Data error!");
       }
 
-      setMessage(data.message || "Sikeres jelszóvisszaállítás!");
+      setMessage(data.message || "Your password just has been reset!");
     } catch (error) {
       console.error("🚨 Fetch hiba:", error);
       setMessage(error.message);

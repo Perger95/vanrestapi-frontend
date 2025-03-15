@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { loginUser } from '../api';
+import { useNavigate } from "react-router-dom";  
 
 const Login = ({ setToken }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate(); 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -45,7 +47,9 @@ const Login = ({ setToken }) => {
                     </button>
                     {error && <p style={styles.errorText}>{error}</p>}
                 </form>
-                {error && <p style={styles.error}>{error}</p>}
+                <p style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }} onClick={() => navigate("/forgot-password")}>
+                     I forgot my password
+                </p>
             </div>
         </div>
     );
