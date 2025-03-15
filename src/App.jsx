@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './pages/Login';
 import Events from './pages/Events';
 import Helpdesk from './pages/Helpdesk'; // Új Helpdesk oldal importálása
+import ResetPassword from "./pages/resetpassword";
 
 const App = () => {
     const [token, setToken] = useState(localStorage.getItem('token') || '');
@@ -18,6 +19,7 @@ const App = () => {
                     path="/helpdesk" 
                     element={token ? <Helpdesk token={token} /> : <Login setToken={setToken} />} 
                 />
+                <Route path="/reset-password" element={<ResetPassword />} />
             </Routes>
         </Router>
     );
