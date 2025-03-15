@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getEvents, createEvent, deleteEvent, updateEvent } from '../api';
+import { useNavigate } from 'react-router-dom';
 
 const Events = ({ token, setToken }) => {
     const [events, setEvents] = useState([]);
@@ -8,6 +9,8 @@ const Events = ({ token, setToken }) => {
     const [description, setDescription] = useState('');
     const [editId, setEditId] = useState(null);
     const [editDescription, setEditDescription] = useState('');
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -27,25 +30,22 @@ const Events = ({ token, setToken }) => {
         try {
             const newEvent = { title, occurrence, description };
             const createdEvent = await createEvent(newEvent, token);
-    
-            // Ellenőrizzük, hogy a dátum valóban megfelelő formátumban van-e
+
             let formattedOccurrence = null;
             if (createdEvent.occurrence) {
                 const parsedDate = new Date(createdEvent.occurrence);
                 formattedOccurrence = isNaN(parsedDate.getTime()) 
-                    ? null  // Ha érvénytelen, akkor null-t adunk vissza
-                    : parsedDate.toISOString();  // ISO formátumba alakítjuk
+                    ? null  
+                    : parsedDate.toISOString();
             }
-    
-            // Az új eseményt egy időzített állapotfrissítéssel adjuk hozzá
+
             setTimeout(() => {
                 setEvents(prevEvents => [
                     ...prevEvents, 
                     { ...createdEvent, occurrence: formattedOccurrence }
                 ]);
-            }, 100); // Minimális késleltetés az érvényes adat betöltéséhez
-    
-            // Formok kiürítése
+            }, 100);
+
             setTitle('');
             setOccurrence('');
             setDescription('');
@@ -53,9 +53,6 @@ const Events = ({ token, setToken }) => {
             console.error("Error creating event:", error);
         }
     };
-    
-    
-    
 
     const handleDeleteEvent = async (id) => {
         const confirmDelete = window.confirm("❌ Biztosan törölni szeretnéd ezt az eseményt?");
@@ -145,8 +142,6 @@ const Events = ({ token, setToken }) => {
                 })}
             </ul>
 
-
-            <h3 style={styles.heading}> Create New Event ⚡</h3>
             <form onSubmit={handleCreateEvent} style={styles.form}>
                 <input 
                     type="text" 
@@ -174,7 +169,18 @@ const Events = ({ token, setToken }) => {
                 <button type="submit" style={styles.createButton}>➕ Create Event</button>
             </form>
 
-            <button onClick={handleLogout} style={styles.logoutButton}>🚪 Logout</button>
+            {/* 🔹 Gombok konténer */}
+            <div style={styles.buttonContainer}>
+                <button onClick={() => navigate('/helpdesk')} style={styles.helpdeskButton}>
+                    Helpdesk
+                    <img src="/images/helpdesk-icon.png" alt="HelpDesk Icon" style={styles.iconRight} />
+                </button>
+
+                <button onClick={handleLogout} style={styles.logoutButton}> 
+                    <img src="/images/login-icon.png" alt="Login Icon" style={styles.iconLeft} />
+                    Logout
+                </button>
+            </div>
         </div>
     );
 };
@@ -183,27 +189,124 @@ const Events = ({ token, setToken }) => {
 const styles = {
     container: {
         maxWidth: '600px',
-        margin: 'auto',  // 🌟 Középre igazítás
+        margin: 'auto',
         padding: '20px',
         backgroundColor: '#f9f9f9',
         borderRadius: '10px',
         boxShadow: '0px 4px 8px rgba(0,0,0,0.1)',
-        textAlign: 'center', // 🌟 Szöveg középre igazítása
+        textAlign: 'center',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center', // 🌟 Belül minden középre
+        alignItems: 'center',
+    },
+
+    buttonContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '350px',
+        marginTop: '130px'
+    },
+    
+    heading: {
+        color: '#333',
+        marginBottom: '15px',
+        fontSize: '26px', // Nagyobb szöveg
+        fontWeight: 'bold',
+        textShadow: '2px 2px 4px rgba(0,0,0,0.3)', // 🔹 Árnyék hozzáadása
+        background: 'linear-gradient(to right, #4CAF50, #2E8B57)', // 🔥 Szép háttérszín
+        padding: '10px 20px', // Térköz a háttérhez
+        borderRadius: '8px', // Lekerekített sarkok
+        color: 'white', // Fehér szöveg
+        display: 'inline-block', // Csak a szöveg méretéig nyúljon
+    },
+    
+    iconRight: {
+        width: '20px',  // 🔹 Kép szélessége
+        height: '20px', // 🔹 Kép magassága
+        marginLeft: '8px', // 🔹 Kicsi térköz a szöveg után
+        verticalAlign: 'middle' // 🔹 Szöveg közé igazítása
+    },
+
+    iconLeft: {
+        width: '20px',  // 🔹 Kép szélessége
+        height: '20px', // 🔹 Kép magassága
+        marginRight: '8px', // 🔹 Térköz a szöveg és a kép között
+        verticalAlign: 'middle' // 🔹 Kép függőleges igazítása a szöveghez
+    },
+
+    createButton: {
+        backgroundColor: '#28a745',
+        color: 'white',
+        border: 'none',
+        padding: '10px 15px',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '14px',
+        transition: '0.3s',
+        display: 'inline-block',  // ✅ Biztosítja, hogy ne örököljön flex stílust!
+        textAlign: 'center',
+        marginTop: '10px' ,
+        width: '100%',  
+        maxWidth: '200px' 
+        //marginBottom: '20px'
+    },
+    editButton: {
+        backgroundColor: '#007BFF',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        marginRight: '5px',
+        display: 'inline-block', // ✅ Fixálja a gombot!
+        textAlign: 'center'
+    },
+    deleteButton: {
+        backgroundColor: '#D2595C',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        display: 'inline-block', // ✅ Megoldja a kinézeti problémát!
+        textAlign: 'center'
+    },
+
+    helpdeskButton: {
+        backgroundColor: '#4646FF',
+        color: 'white',
+        border: 'none',
+        padding: '10px 15px',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        marginTop: '15px',
+        fontSize: '14px',
+        transition: '0.3s',
+        display: 'flex',  
+        alignItems: 'center',
+        justifyContent: 'center',
+        lineHeight: 'normal',
+        gap: '5px',
+        height: '40px',
     },
     logoutButton: {
         backgroundColor: '#FF4500',
         color: 'white',
         border: 'none',
-        padding: '10px 20px', // 🛠️ Jobban láthatóvá teszi
+        padding: '10px 20px',
         borderRadius: '5px',
         cursor: 'pointer',
         marginTop: '20px',
-        display: 'block', // 🌟 Nem inline, hanem saját sorban van
-        margin: '20px auto', // 🌟 Középre igazítás
-        textAlign: 'center'
+        display: 'block',
+        margin: '20px auto',
+        textAlign: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '40px',  // 🔹 Egységes magasság
+        lineHeight: 'normal',
+        marginTop: '14px'
+
     },
     saveButton: {
         backgroundColor: '#28a745',
@@ -214,30 +317,6 @@ const styles = {
         cursor: 'pointer',
         marginLeft: '5px'
     },
-    editButton: {
-        backgroundColor: '#007BFF',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        marginRight: '5px'
-    },
-    deleteButton: {
-        backgroundColor: '#D2595C',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        cursor: 'pointer'
-    },
-    descriptionInput: {
-        width: '80%', // 🌟 Nem foglalja el az egész sort
-        padding: '10px',
-        borderRadius: '5px',
-        border: '1px solid #ccc',
-        marginTop: '10px'
-    }
 };
 
 export default Events;

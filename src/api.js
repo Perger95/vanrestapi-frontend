@@ -44,3 +44,11 @@ export const deleteEvent = async (id, token) => {
     });
     return response.data;
 };
+
+// Helpdesk kérdés küldése
+export const askHelpdesk = async (question, token) => {
+    const response = await axios.post(`${API_BASE_URL}?helpdesk`, { question }, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+};
