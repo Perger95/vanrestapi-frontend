@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
+    const navigate = useNavigate(); 
 
     const handleResetRequest = async () => {
         if (!email) {
@@ -22,46 +24,41 @@ function ForgotPassword() {
 
     return (
         <div style={styles.wrapper}>
-            {/* 🔹 BAL OLDALI KÉP */}
             <div style={styles.imageContainer}>
                 <img src="/images/reset-password.jpg" alt="Reset Password" style={styles.image} />
-            </div>
-
-            {/* 🔹 JOBB OLDALI FORM – MOST KEVÉSBÉ SZÉLES! */}
-            <div style={styles.container}>
-                <h1 style={styles.heading}>Forgot Password?</h1>
-                <p style={styles.subtitle}>
-                    Enter your registered email and we'll send you a password reset link.
-                </p>
-
-                <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={styles.input}
-                />
-
+                    </div>
+                    <div style={styles.container}>
+                        <h1 style={styles.heading}>Forgot Password?</h1>
+                        <p style={styles.subtitle}>
+                            Enter your registered email and we'll send you a password reset link.
+                        </p>
+                        <input
+                            type="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={styles.input}
+                        />
                 <button onClick={handleResetRequest} style={styles.button}>
-                    Reset Password
-                </button>
-
-                {message && <p style={styles.message}>{message}</p>}
+                            Reset Password</button>
+                        {message && <p style={styles.message}>{message}</p>}
+                        <button onClick={() => navigate("/")} style={styles.backButton}>
+                            Back to Login</button>
             </div>
         </div>
     );
 }
 
-// 🎨 **Stílusok**
+
 const styles = {
     wrapper: {
         display: "flex",
-        justifyContent: "center", // **Középre igazítás vízszintesen**
-        alignItems: "start", // **A form ne középen legyen, hanem felül**
+        justifyContent: "center",
+        alignItems: "start",
         height: "100vh",
         backgroundColor: "#f4f4f4",
         padding: "20px",
-        gap: "50px", // **Több hely a kép és a form között**
+        gap: "50px",
     },
     imageContainer: {
         flex: "0 0 30%",
@@ -85,7 +82,7 @@ const styles = {
         boxShadow: "0px 5px 12px rgba(0,0,0,0.1)",
         textAlign: "center",
         maxWidth: "400px",
-        marginTop: "5vh", // **Feljebb tolja a formot**
+        marginTop: "5vh",
         transform: "translateX(-8cm)",
     },
     heading: {
@@ -123,6 +120,18 @@ const styles = {
         marginTop: "15px",
         fontSize: "14px",
         color: "#333",
+    },
+    backButton: {
+        backgroundColor: "#6c757d",
+        color: "white",
+        border: "none",
+        padding: "12px",
+        borderRadius: "6px",
+        cursor: "pointer",
+        fontSize: "16px",
+        fontWeight: "bold",
+        width: "40%",
+        marginTop: "15px",
     },
 };
 

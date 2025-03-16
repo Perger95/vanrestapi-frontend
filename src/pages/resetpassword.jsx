@@ -29,7 +29,7 @@ function ResetPassword() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"  // 🔹 FONTOS! A backend így biztosan JSON-ként dolgozza fel
+          "Accept": "application/json"
         },
         body: JSON.stringify({
           token: token.trim(),  
@@ -37,10 +37,8 @@ function ResetPassword() {
         }),
       });
 
-      console.log("✅ Válasz érkezett:", response);
 
       const data = await response.json();
-      console.log("📬 Szerver válasz:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Data error!");
@@ -48,7 +46,6 @@ function ResetPassword() {
 
       setMessage(data.message || "Your password just has been reset!");
     } catch (error) {
-      console.error("🚨 Fetch hiba:", error);
       setMessage(error.message);
     }
   };
