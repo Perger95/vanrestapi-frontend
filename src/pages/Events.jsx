@@ -358,7 +358,7 @@ const styles = {
         height: "40px",
     },
 
-    // 🔹 ICONS FOR BUTTONS
+    //  ICONS FOR BUTTONS
     iconRight: {
         width: "20px",
         height: "20px",
